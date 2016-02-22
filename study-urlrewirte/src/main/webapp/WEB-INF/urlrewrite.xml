@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE urlrewrite
+    PUBLIC "-//tuckey.org//DTD UrlRewrite 4.0//EN"
+    "http://www.tuckey.org/res/dtds/urlrewrite4.0.dtd">
+
+<urlrewrite>
+	<rule>
+		<note>单用户请求的路径为/test/status/时，将被redirected（重定向）到/index.jsp</note>
+		<from>/test/status/</from>
+		<to type="redirect">%{context-path}/index01.jsp</to>
+	</rule>
+	
+	<!-- redirect one url -->
+	<rule>
+		<from>/some/old/page.html</from>
+		<to type="redirect">/very/new/page.html</to>
+	</rule>
+	
+	<!-- redirect a directory -->
+	<rule>
+		<from>/some/olddir/(.*)</from>
+		<to type="redirect">/very/newdir/$1</to>
+	</rule>
+	
+	<!-- clean a url，例如：/products/1234 将转换成 /products/index.jsp?product_id=1234 -->
+	<rule>
+		<from>/products/([0-9+])</from>
+		<to>/products/index.jsp?product_id=$1</to>
+	</rule>
+	
+	<!-- 检测浏览器 -->
+	<rule>
+		<condition name="user-agent">Mozilla/[1-4]</condition>
+		<from>/some/page.html</from>
+		<to>/some/page-for-old-browsers.html</to>
+	</rule>
+	
+	<!-- 检测浏览器，并设置请求参数
+		所有的请求都将被检测，如果满足条件，将调用request.setAttribute("browser", "moz")
+	 -->
+	<rule>
+		<condition name="user-agent">Mozilla/[1-4]</condition>
+		<set type="request" name="browser">moz</set>
+	</rule>
+	
+	
+	<!-- 配置JSTL使用, 单使用<c:url..>时，会自动转换 -->
+	<outbound-rule>
+		<note>
+			The outbound-rule specifies that when response.encodeURL is
+			called (if you are using JSTL c:url) the url /rewrite-status 
+			will be rewritten to /test/status/. 
+			
+			The above rule and this outbound-rule means that end users should never see 
+			the url /rewrite-status only /test/status/both in thier location bar and in 
+			hyperlinks in yourpages.
+		</note>
+		<from>/rewrite-status/(.*)</from>
+		<to>/index.jsp?param=$1</to>
+	</outbound-rule>
+</urlrewrite>
